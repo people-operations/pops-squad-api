@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: squad-api
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/popsdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:Biel0501}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+server:
+  servlet:
+    context-path: /api
+  port: 8083
+
+firebase:
+  service-account-path: C:/keys/pops-srv-employee-firebase-adminsdk-fbsvc-e86c8fbf1b.json
+
+pops-srv-employee:
+  url: http://localhost:8081/api
