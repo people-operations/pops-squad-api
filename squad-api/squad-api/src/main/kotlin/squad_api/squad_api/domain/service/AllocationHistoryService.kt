@@ -8,8 +8,8 @@ import squad_api.squad_api.infraestructure.utilities.CrudService
 
 @Service
 class AllocationHistoryService (
-    private val allocationHistoryRepository: AllocationHistoryRepository
-    , private val teamService: TeamService
+    private val allocationHistoryRepository: AllocationHistoryRepository,
+    private val teamService: TeamService
 ) : CrudService<AllocationHistory, Long>() {
 
     override val repository = allocationHistoryRepository

@@ -30,7 +30,8 @@ class TeamController(
             description = request.description,
             sprintDuration = request.sprintDuration,
             approverId = request.approverId,
-            projectId = request.projectId
+            projectId = request.projectId,
+            status = request.status,
         )
         return teamService.save(entity)
     }
@@ -43,7 +44,8 @@ class TeamController(
             description = request.description,
             sprintDuration = request.sprintDuration,
             approverId = request.approverId,
-            projectId = request.projectId
+            projectId = request.projectId,
+            status = request.status
         )
         ResponseEntity.ok(teamService.update(id, entity))
     } catch (ex: ResponseStatusException) {

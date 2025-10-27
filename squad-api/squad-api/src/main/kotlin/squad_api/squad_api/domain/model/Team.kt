@@ -27,5 +27,8 @@ data class Team(
     val approverId: Long? = null,
 
     @Column(name = "fk_project", nullable = false)
-    val projectId: Long
+    val projectId: Long,
+
+    @Column(nullable = false)
+    val status: Boolean = true
 )
