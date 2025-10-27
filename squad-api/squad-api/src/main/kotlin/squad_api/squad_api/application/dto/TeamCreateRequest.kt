@@ -5,5 +5,6 @@ data class TeamCreateRequest(
     val description: String?,
     val sprintDuration: Int,
     val approverId: Long?,
-    val projectId: Long
+    val projectId: Long,
+    val status: Boolean
 )

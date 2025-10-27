@@ -17,10 +17,10 @@ data class Allocation (
     val allocatedHours: Int,
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "team_id", nullable = false)
+    @JoinColumn(name = "fk_team", nullable = false)
     val team: Team,
 
-    @Column(name = "person_id", nullable = false)
+    @Column(name = "fk_person", nullable = false)
     val personId: Long,
 
     @Column(name = "position", nullable = false)
