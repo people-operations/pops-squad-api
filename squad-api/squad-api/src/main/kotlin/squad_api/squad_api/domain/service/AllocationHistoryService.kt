@@ -1,13 +1,9 @@
 package squad_api.squad_api.domain.service
 
-import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import squad_api.squad_api.application.dto.AllocationResponse
-import squad_api.squad_api.application.dto.TeamShortDTO
-import squad_api.squad_api.domain.model.Allocation
 import squad_api.squad_api.domain.model.AllocationHistory
 import squad_api.squad_api.domain.repository.AllocationHistoryRepository
-import squad_api.squad_api.domain.repository.AllocationRepository
 import squad_api.squad_api.infraestructure.utilities.CrudService
 
 @Service
@@ -25,8 +21,8 @@ class AllocationHistoryService (
                 startedAt = allocation.startedAt,
                 endedAt = java.time.LocalDate.now(),
                 team = team,
-                personId = allocation.personId,
-                position = allocation.position,
+                personId = allocation.personId!!,
+                position = allocation.position, // Assuming employee name is not stored in AllocationHistory
                 allocatedHours = allocation.allocatedHours,
             )
             allocationHistoryRepository.save(saveHistory)

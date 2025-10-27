@@ -1,7 +1,9 @@
 package squad_api.squad_api.application.controller
 
 import org.springframework.data.domain.Pageable
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 import squad_api.squad_api.application.dto.TeamCreateRequest
 import squad_api.squad_api.domain.model.Team
 import squad_api.squad_api.domain.service.TeamService
@@ -15,7 +17,11 @@ class TeamController(
     fun list(pageable: Pageable) = teamService.findAllPageable(pageable)
 
     @GetMapping("/{id}")
-    fun get(@PathVariable id: Long) = teamService.findById(id)
+    fun get(@PathVariable id: Long): ResponseEntity<Any> = try {
+        ResponseEntity.ok(teamService.findById(id))
+    } catch (ex: ResponseStatusException) {
+        ResponseEntity.status(ex.statusCode).body(mapOf("error" to ex.reason))
+    }
 
     @PostMapping
     fun create(@RequestBody request: TeamCreateRequest): Team {
@@ -30,7 +36,7 @@ class TeamController(
     }
 
     @PutMapping("/{id}")
-    fun update(@PathVariable id: Long, @RequestBody request: TeamCreateRequest): Team {
+    fun update(@PathVariable id: Long, @RequestBody request: TeamCreateRequest): ResponseEntity<Any> = try {
         val entity = Team(
             id = id,
             name = request.name,
@@ -39,9 +45,16 @@ class TeamController(
             approverId = request.approverId,
             projectId = request.projectId
         )
-        return teamService.update(id, entity)
+        ResponseEntity.ok(teamService.update(id, entity))
+    } catch (ex: ResponseStatusException) {
+        ResponseEntity.status(ex.statusCode).body(mapOf("error" to ex.reason))
     }
 
     @DeleteMapping("/{id}")
-    fun delete(@PathVariable id: Long) = teamService.delete(id)
+    fun delete(@PathVariable id: Long): ResponseEntity<Any> = try {
+        teamService.delete(id)
+        ResponseEntity.noContent().build()
+    } catch (ex: ResponseStatusException) {
+        ResponseEntity.status(ex.statusCode).body(mapOf("error" to ex.reason))
+    }
 }
