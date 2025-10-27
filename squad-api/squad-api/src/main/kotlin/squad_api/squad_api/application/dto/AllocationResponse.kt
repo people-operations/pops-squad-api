@@ -7,7 +7,8 @@ data class AllocationResponse(
     val startedAt: LocalDate,
     val allocatedHours: Int,
     val team: TeamShortDTO,
-    val personId: Long,
+    val personId: Long?,
+    val employee: EmployeeDTO?,
     val position: String
 )
 

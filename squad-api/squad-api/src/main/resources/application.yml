@@ -20,6 +20,12 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
 
+  session:
+    store-type: jdbc
+    jdbc:
+      initialize-schema: always         # cria SPRING_SESSION* na inicialização
+      # table-name: SPRING_SESSION      # (opcional) force o nome/case
+
 server:
   servlet:
     context-path: /api

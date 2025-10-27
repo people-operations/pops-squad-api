@@ -27,7 +27,7 @@ abstract class CrudService<T : Any, ID : Any> {
     @Transactional
     open fun update(id: ID, entity: T): T {
         if (!repository.existsById(id)) {
-            throw IllegalArgumentException("Recurso não encontrado com ID: $id")
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Recurso não encontrado com ID: $id")
         }
         return repository.save(entity)
     }
@@ -35,7 +35,7 @@ abstract class CrudService<T : Any, ID : Any> {
     @Transactional
     open fun delete(id: ID) {
         if (!repository.existsById(id)) {
-            throw IllegalArgumentException("Recurso não encontrado com ID: $id")
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Recurso não encontrado com ID: $id")
         }
         repository.deleteById(id)
     }
