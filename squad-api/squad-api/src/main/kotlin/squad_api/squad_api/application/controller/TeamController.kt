@@ -14,11 +14,21 @@ class TeamController(
     private val teamService: TeamService
 ) {
     @GetMapping
-    fun list(pageable: Pageable) = teamService.findAllPageable(pageable)
+    fun list(
+        pageable: Pageable,
+        @RequestHeader("Authorization") authHeader: String,
+    ): ResponseEntity<Any> = try {
+        ResponseEntity.ok(teamService.findAllTeamsPageable(pageable, authHeader))
+    } catch (ex: ResponseStatusException) {
+        ResponseEntity.status(ex.statusCode).body(mapOf("error" to ex.reason))
+    }
 
     @GetMapping("/{id}")
-    fun get(@PathVariable id: Long): ResponseEntity<Any> = try {
-        ResponseEntity.ok(teamService.findById(id))
+    fun get(
+        @PathVariable id: Long,
+        @RequestHeader("Authorization") authHeader: String,
+    ): ResponseEntity<Any> = try {
+        ResponseEntity.ok(teamService.findTeamById(id, authHeader))
     } catch (ex: ResponseStatusException) {
         ResponseEntity.status(ex.statusCode).body(mapOf("error" to ex.reason))
     }

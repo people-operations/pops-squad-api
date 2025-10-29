@@ -15,8 +15,8 @@ class AllocationService(
     private val allocationRepository: AllocationRepository,
     private val teamService: TeamService,
     private val allocationHistoryService: AllocationHistoryService,
-    private val allocationDeleteService: AllocationDeleteService
-    , private val popsSrvEmployeeClient: PopsSrvEmployeeClient
+    private val allocationDeleteService: AllocationDeleteService,
+    private val popsSrvEmployeeClient: PopsSrvEmployeeClient
 ) : CrudService<Allocation, Long>() {
 
     override val repository = allocationRepository
@@ -30,10 +30,8 @@ class AllocationService(
     }
 
     fun toAllocationResponseDTO(allocation: Allocation, token: String): AllocationResponse {
-        println("Trying to fetch employee for personId: ${allocation.personId}")
         val employee = popsSrvEmployeeClient.findEmployeeById(allocation.personId, token)
             ?: throw IllegalStateException("Employee não encontrado para personId: ${allocation.personId}")
-        println("Employee fetched: $employee")
         return AllocationResponse(
             id = allocation.id!!,
             startedAt = allocation.startedAt,
