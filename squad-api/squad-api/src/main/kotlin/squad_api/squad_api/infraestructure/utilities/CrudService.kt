@@ -39,6 +39,4 @@ abstract class CrudService<T : Any, ID : Any> {
         }
         repository.deleteById(id)
     }
-
-    fun existsById(id: ID): Boolean = repository.existsById(id)
 }
