@@ -1,10 +1,11 @@
 spring:
   application:
     name: squad-api
+
   datasource:
-    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/popsdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    username: ${MYSQL_USER:root}
-    password: ${MYSQL_PASSWORD:Biel0501}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
@@ -23,16 +24,15 @@ spring:
   session:
     store-type: jdbc
     jdbc:
-      initialize-schema: always         # cria SPRING_SESSION* na inicialização
-      # table-name: SPRING_SESSION      # (opcional) force o nome/case
+      initialize-schema: always
 
 server:
+  port: 8083
   servlet:
     context-path: /api-squad
-  port: 8083
 
 firebase:
-  service-account-path: C:/keys/pops-srv-employee-firebase-adminsdk-fbsvc-e86c8fbf1b.json
+  service-account-path: ${FIREBASE_KEY_PATH}
 
 pops-srv-employee:
-  url: http://localhost:8081/api
+  url: ${POPS_SRV_EMPLOYEE_URL:http://localhost:8081/api}
