@@ -1,6 +1,8 @@
 spring:
   application:
     name: squad-api
+  config:
+    import: optional:file:./config/values.yml
 
   datasource:
     url: ${DB_URL}
