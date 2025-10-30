@@ -15,11 +15,8 @@ abstract class CrudService<T : Any, ID : Any> {
 
     fun findAllPageable(pageable: Pageable): Page<T> = repository.findAll(pageable)
 
-    fun findById(id: ID): T =
-        repository.findById(id)
-            .orElseThrow {
-                ResponseStatusException(HttpStatus.NOT_FOUND, "Recurso não encontrado com ID: $id")
-            }
+    fun findById(id: ID): T? = repository.findById(id).orElse(null)
+
 
     @Transactional
     open fun save(entity: T): T = repository.save(entity)

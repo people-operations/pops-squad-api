@@ -21,64 +21,39 @@ class AllocationService(
 
     override val repository = allocationRepository
 
-    fun findAllByTeamId(teamId: Long, token: String): List<AllocationResponse> {
+    fun findAllByTeamId(teamId: Long, token: String): List<Allocation> {
         val allocations = repository.findAllByTeamId(teamId)
         if (allocations.isEmpty()) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhuma alocação encontrada para o time com ID: $teamId")
         }
-        return allocations.map { toAllocationResponseDTO(it, token) }
+        return allocations
     }
 
-    fun toAllocationResponseDTO(allocation: Allocation, token: String): AllocationResponse {
-        val employee = popsSrvEmployeeClient.findEmployeeById(allocation.personId, token)
-            ?: throw IllegalStateException("Employee não encontrado para personId: ${allocation.personId}")
-        return AllocationResponse(
-            id = allocation.id!!,
-            startedAt = allocation.startedAt,
-            allocatedHours = allocation.allocatedHours,
-            team = TeamShortDTO(
-                id = allocation.team.id!!,
-                name = allocation.team.name
-            ),
-            employee = employee,
-            personId = allocation.personId,
-            position = allocation.position
-        )
-    }
+    fun replaceAllocations(teamId: Long, request: List<AllocationCreateRequest>, token: String): List<Allocation> {
+        val team = teamService.findById(teamId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhum time encontrado ID: $teamId")
 
-    fun replaceAllocations(teamId: Long, request: AllocationCreateRequest, token: String): Allocation {
-        val team = teamService.findById(teamId)
-
-        val entity = Allocation(
-            startedAt = request.startedAt,
-            team = team,
-            allocatedHours = request.allocatedHours,
-            personId = request.personId,
-            position = request.position
-        )
         val currentAllocations = findAllByTeamId(teamId, token)
+
         allocationHistoryService.saveCurrentAllocationsAsHistory(currentAllocations)
         allocationDeleteService.deleteAllByTeamId(teamId)
-        return save(entity)
+
+        return request.map { allocationReq ->
+            val entity = Allocation(
+                startedAt = allocationReq.startedAt,
+                team = team,
+                allocatedHours = allocationReq.allocatedHours,
+                personId = allocationReq.personId,
+                position = allocationReq.position
+            )
+            save(entity)
+        }
     }
 
-    fun findAllByPersonId(personId: Long, token: String): List<AllocationResponse> {
-        val employee = popsSrvEmployeeClient.findEmployeeById(personId, token)
-            ?: throw IllegalStateException("Employee não encontrado para personId: $personId")
-        return allocationRepository.findAllByPersonId(personId)
-            .map { allocation ->
-                AllocationResponse(
-                    id = allocation.id!!,
-                    startedAt = allocation.startedAt,
-                    allocatedHours = allocation.allocatedHours,
-                    team = TeamShortDTO(
-                        id = allocation.team.id!!,
-                        name = allocation.team.name
-                    ),
-                    employee = employee,
-                    personId = allocation.personId,
-                    position = allocation.position
-                )
-            }
+    fun findAllByPersonId(personId: Long, token: String): List<Allocation> {
+        val allocations = allocationRepository.findAllByPersonId(personId)
+        if (allocations.isEmpty()) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhuma alocação encontrada para personId: $personId")
+        }
+        return allocations
     }
 }

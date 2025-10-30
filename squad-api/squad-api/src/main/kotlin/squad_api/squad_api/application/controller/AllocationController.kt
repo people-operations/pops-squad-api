@@ -7,19 +7,23 @@ import squad_api.squad_api.application.dto.AllocationCreateRequest
 import squad_api.squad_api.application.dto.AllocationResponse
 import squad_api.squad_api.domain.model.Allocation
 import squad_api.squad_api.domain.service.AllocationService
+import squad_api.squad_api.domain.service.PopsSrvEmployeeClient
+import squad_api.squad_api.domain.utils.AllocationNormalizer
 
 @RestController
 @RequestMapping("/teams")
 class AllocationController(
     private val allocationService: AllocationService,
+    private val popsSrvEmployeeClient: PopsSrvEmployeeClient
 ) {
     @PostMapping("/{teamId}/allocations")
     fun create(
         @PathVariable teamId: Long,
-        @RequestBody request: AllocationCreateRequest,
+        @RequestBody request: List<AllocationCreateRequest>,
         @RequestHeader("Authorization") authHeader: String,
-    ): Allocation {
+    ): List<Allocation> {
         return try {
+            println("Creating allocations for teamId: $teamId with request: $request")
             allocationService.replaceAllocations(teamId, request, authHeader)
         } catch (ex: Exception) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao criar alocação", ex)
@@ -31,7 +35,9 @@ class AllocationController(
         @PathVariable teamId: Long,
         @RequestHeader("Authorization") authHeader: String
     ): List<AllocationResponse> {
-        return allocationService.findAllByTeamId(teamId, authHeader)
+        val allocations = allocationService.findAllByTeamId(teamId, authHeader)
+        val normalizer = AllocationNormalizer(popsSrvEmployeeClient)
+        return allocations.map { normalizer.normalize(it, authHeader) }
     }
 
     @GetMapping("/allocations/person/{id}")
@@ -39,6 +45,8 @@ class AllocationController(
         @PathVariable id: Long,
         @RequestHeader("Authorization") authHeader: String
     ): List<AllocationResponse> {
-        return allocationService.findAllByPersonId(id, authHeader)
+        val allocations = allocationService.findAllByPersonId(id, authHeader)
+        val normalizer = AllocationNormalizer(popsSrvEmployeeClient)
+        return allocations.map { normalizer.normalize(it, authHeader) }
     }
 }
