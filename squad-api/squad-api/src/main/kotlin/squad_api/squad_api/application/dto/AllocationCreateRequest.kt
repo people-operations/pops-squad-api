@@ -7,5 +7,4 @@ data class AllocationCreateRequest(
     val allocatedHours: Int,
     val personId: Long,
     val position: String,
-    val team : Long
 )

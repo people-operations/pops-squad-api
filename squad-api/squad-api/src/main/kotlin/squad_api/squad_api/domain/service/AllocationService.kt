@@ -23,15 +23,11 @@ class AllocationService(
 
     fun findAllByTeamId(teamId: Long, token: String): List<Allocation> {
         val allocations = repository.findAllByTeamId(teamId)
-        if (allocations.isEmpty()) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhuma alocação encontrada para o time com ID: $teamId")
-        }
         return allocations
     }
 
     fun replaceAllocations(teamId: Long, request: List<AllocationCreateRequest>, token: String): List<Allocation> {
         val team = teamService.findById(teamId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhum time encontrado ID: $teamId")
-
         val currentAllocations = findAllByTeamId(teamId, token)
 
         allocationHistoryService.saveCurrentAllocationsAsHistory(currentAllocations)
@@ -45,7 +41,7 @@ class AllocationService(
                 personId = allocationReq.personId,
                 position = allocationReq.position
             )
-            save(entity)
+            allocationRepository.save(entity)
         }
     }
 
