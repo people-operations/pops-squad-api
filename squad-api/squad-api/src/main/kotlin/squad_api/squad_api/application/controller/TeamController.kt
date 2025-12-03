@@ -24,7 +24,8 @@ class TeamController(
         pageable: Pageable,
         @RequestHeader("Authorization") authHeader: String,
     ): ResponseEntity<Any> = try {
-        ResponseEntity.ok(teamService.findAllTeamsPageable(pageable, authHeader))
+        val allocations = allocationService.findAll()
+        ResponseEntity.ok(teamService.findAllTeamsPageable(pageable, authHeader, allocations))
     } catch (ex: ResponseStatusException) {
         ResponseEntity.status(ex.statusCode).body(mapOf("error" to ex.reason))
     }
@@ -34,7 +35,8 @@ class TeamController(
         @PathVariable id: Long,
         @RequestHeader("Authorization") authHeader: String,
     ): ResponseEntity<Any> = try {
-        ResponseEntity.ok(teamService.findTeamById(id, authHeader))
+        val allocations = allocationService.findAllByTeamId(id, authHeader)
+        ResponseEntity.ok(teamService.findTeamById(id, authHeader, allocations))
     } catch (ex: ResponseStatusException) {
         ResponseEntity.status(ex.statusCode).body(mapOf("error" to ex.reason))
     }

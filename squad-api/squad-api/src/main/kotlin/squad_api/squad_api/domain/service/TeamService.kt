@@ -11,6 +11,7 @@ import squad_api.squad_api.domain.repository.TeamRepository
 import squad_api.squad_api.infraestructure.utilities.CrudService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import squad_api.squad_api.domain.model.Allocation
 
 @Service
 class TeamService(
@@ -22,32 +23,56 @@ class TeamService(
     override val repository = teamRepository
 
 
-    fun findTeamById(teamId: Long, token: String):TeamResponseDTO {
+    fun findTeamById(
+        teamId: Long,
+        token: String,
+        allocations: List<Allocation>
+    ): TeamResponseDTO {
         val team = repository.findById(teamId)
         if (team.isEmpty()) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhuma alocação encontrada para o time com ID: $teamId")
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhum time encontrado com ID: $teamId")
         }
-        return toTeamResponseDTO(team.get(), token)
+        val teamAllocations = allocations.filter { it.team.id == teamId }
+        val allocatedPeopleCount = teamAllocations.size
+        val totalAllocatedHours = teamAllocations.sumOf { it.allocatedHours }
+        return toTeamResponseDTO(team.get(), token, allocatedPeopleCount, totalAllocatedHours)
     }
 
-    fun toTeamResponseDTO(team: Team, token: String): TeamResponseDTO {
+    fun toTeamResponseDTO(
+        team: Team,
+        token: String,
+        allocatedPeopleCount: Int? = null,
+        totalAllocatedHours: Int? = null
+    ): TeamResponseDTO {
         val approver = team.approverId?.let { popsSrvEmployeeClient.findEmployeeById(it, token) }
         val approverDTO = approver?.let { ApproverDTO(id = it.id, name = it.name) }
+
         return TeamResponseDTO(
             id = team.id!!,
             name = team.name,
-            description =  team.description,
+            description = team.description,
             sprintDuration = team.sprintDuration,
             approverId = team.approverId,
             projectId = team.projectId,
             status = team.status,
-            approver = approverDTO
+            approver = approverDTO,
+            allocatedPeopleCount = allocatedPeopleCount!!,
+            totalAllocatedHours = totalAllocatedHours!!
         )
     }
 
-    fun findAllTeamsPageable(pageable: Pageable, token: String): Page<TeamResponseDTO> {
+    fun findAllTeamsPageable(
+        pageable: Pageable,
+        token: String,
+        allocations: List<Allocation>
+    ): Page<TeamResponseDTO> {
         val teamsPage = teamRepository.findAllByStatusTrue(pageable)
-        return teamsPage.map { toTeamResponseDTO(it, token) }
+        return teamsPage.map { team ->
+            val teamAllocations = allocations.filter { it.team.id == team.id }
+            val allocatedPeopleCount = teamAllocations.size
+            val totalAllocatedHours = teamAllocations.sumOf { it.allocatedHours }
+            toTeamResponseDTO(team, token, allocatedPeopleCount, totalAllocatedHours)
+        }
     }
 
     fun softDeleteTeam(id: Long) {
