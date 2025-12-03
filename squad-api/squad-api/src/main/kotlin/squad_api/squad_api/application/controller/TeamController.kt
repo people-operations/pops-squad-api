@@ -6,12 +6,18 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import squad_api.squad_api.application.dto.TeamCreateRequest
 import squad_api.squad_api.domain.model.Team
+import squad_api.squad_api.domain.service.AllocationDeleteService
+import squad_api.squad_api.domain.service.AllocationHistoryService
+import squad_api.squad_api.domain.service.AllocationService
 import squad_api.squad_api.domain.service.TeamService
 
 @RestController
 @RequestMapping("/teams")
 class TeamController(
-    private val teamService: TeamService
+    private val teamService: TeamService,
+    private val allocationService: AllocationService,
+    private val allocationHistoryService: AllocationHistoryService,
+    private val allocationDeleteService: AllocationDeleteService
 ) {
     @GetMapping
     fun list(
@@ -64,7 +70,12 @@ class TeamController(
 
     @DeleteMapping("/{id}")
     fun delete(@PathVariable id: Long): ResponseEntity<Any> = try {
-        teamService.delete(id)
+        val currentAllocations = allocationService.findAllByTeamId(id, "")
+
+        allocationHistoryService.saveCurrentAllocationsAsHistory(currentAllocations)
+        allocationDeleteService.deleteAllByTeamId(id)
+        teamService.softDeleteTeam(id)
+
         ResponseEntity.noContent().build()
     } catch (ex: ResponseStatusException) {
         ResponseEntity.status(ex.statusCode).body(mapOf("error" to ex.reason))

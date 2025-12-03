@@ -1,5 +1,6 @@
 package squad_api.squad_api.domain.service
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
@@ -14,7 +15,7 @@ import org.springframework.data.domain.Pageable
 @Service
 class TeamService(
     private val teamRepository: TeamRepository,
-    private val popsSrvEmployeeClient: PopsSrvEmployeeClient
+    private val popsSrvEmployeeClient: PopsSrvEmployeeClient,
 
 ) : CrudService<Team, Long>() {
 
@@ -45,8 +46,16 @@ class TeamService(
     }
 
     fun findAllTeamsPageable(pageable: Pageable, token: String): Page<TeamResponseDTO> {
-        val teamsPage = teamRepository.findAll(pageable)
+        val teamsPage = teamRepository.findAllByStatusTrue(pageable)
         return teamsPage.map { toTeamResponseDTO(it, token) }
+    }
+
+    fun softDeleteTeam(id: Long) {
+        val team = repository.findById(id).orElseThrow {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Time não encontrado com id: $id")
+        }
+        team.status = false
+        repository.save(team)
     }
 }
 

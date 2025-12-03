@@ -30,5 +30,5 @@ data class Team(
     val projectId: Long,
 
     @Column(nullable = false)
-    val status: Boolean = true
+    var status: Boolean = true
 )
