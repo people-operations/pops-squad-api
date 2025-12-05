@@ -17,5 +17,7 @@ data class TeamResponseDTO(
     val approverId: Long?,
     val projectId: Long,
     val status: Boolean,
-    val approver: ApproverDTO?
+    val approver: ApproverDTO?,
+    val allocatedPeopleCount: Int,
+    val totalAllocatedHours: Int
 )
