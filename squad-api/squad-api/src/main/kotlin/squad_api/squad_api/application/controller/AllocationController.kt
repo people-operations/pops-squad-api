@@ -22,12 +22,7 @@ class AllocationController(
         @RequestBody request: List<AllocationCreateRequest>,
         @RequestHeader("Authorization") authHeader: String,
     ): List<Allocation> {
-        return try {
-            println("Creating allocations for teamId: $teamId with request: $request")
-            allocationService.replaceAllocations(teamId, request, authHeader)
-        } catch (ex: Exception) {
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao criar alocação", ex)
-        }
+        return allocationService.replaceAllocations(teamId, request, authHeader)
     }
 
     @GetMapping("/{teamId}/allocations")

@@ -51,7 +51,7 @@ class AllocationService(
                 personId = allocationReq.personId,
                 position = allocationReq.position
             )
-            save(entity)
+            allocationRepository.save(entity)
         }
     }
 
