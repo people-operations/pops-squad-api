@@ -23,20 +23,26 @@ class AllocationService(
 
     fun findAllByTeamId(teamId: Long, token: String): List<Allocation> {
         val allocations = repository.findAllByTeamId(teamId)
-        if (allocations.isEmpty()) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhuma alocação encontrada para o time com ID: $teamId")
-        }
+        // Retornar lista vazia ao invés de lançar exceção quando não há allocations
+        // Isso permite que teams sem allocations sejam tratados normalmente
         return allocations
     }
 
     fun replaceAllocations(teamId: Long, request: List<AllocationCreateRequest>, token: String): List<Allocation> {
         val team = teamService.findById(teamId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhum time encontrado ID: $teamId")
 
+        // Buscar allocations atuais (pode retornar lista vazia se não houver)
         val currentAllocations = findAllByTeamId(teamId, token)
 
-        allocationHistoryService.saveCurrentAllocationsAsHistory(currentAllocations)
+        // Salvar histórico apenas se houver allocations atuais
+        if (currentAllocations.isNotEmpty()) {
+            allocationHistoryService.saveCurrentAllocationsAsHistory(currentAllocations)
+        }
+        
+        // Deletar allocations atuais (mesmo que seja vazio, é seguro chamar)
         allocationDeleteService.deleteAllByTeamId(teamId)
 
+        // Criar novas allocations
         return request.map { allocationReq ->
             val entity = Allocation(
                 startedAt = allocationReq.startedAt,
@@ -51,9 +57,7 @@ class AllocationService(
 
     fun findAllByPersonId(personId: Long, token: String): List<Allocation> {
         val allocations = allocationRepository.findAllByPersonId(personId)
-        if (allocations.isEmpty()) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhuma alocação encontrada para personId: $personId")
-        }
+        // Retornar lista vazia ao invés de lançar exceção quando não há allocations
         return allocations
     }
 }
