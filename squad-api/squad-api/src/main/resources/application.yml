@@ -5,9 +5,9 @@ spring:
     import: optional:file:./config/values.yml
 
   datasource:
-    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/popsdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    username: ${MYSQL_USER:root}
-    password: ${MYSQL_PASSWORD:gyulia06*}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
@@ -23,26 +23,12 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
 
-  # IMPORTANT: JDBC session configuration commented out due to MySQL connection issues
-  # To fix the error, you need to:
-  # 1. Ensure MySQL server is running
-  # 2. Verify database 'popsdb' exists
-  # 3. Check MySQL credentials (username/password) are correct
-  # 4. Verify user 'root' has access permissions
-  # Then uncomment the session configuration below:
-  #
-  # session:
-  #   store-type: jdbc
-  #   jdbc:
-  #     initialize-schema: always
-
 server:
   port: 8083
   servlet:
     context-path: /api-squad
 
 firebase:
-  #  service-account-path: ${FIREBASE_KEY_PATH}
-  service-account-path: C:/keys/pops-srv-employee-firebase-adminsdk-fbsvc-e86c8fbf1b.json
+  service-account-path: ${FIREBASE_KEY_PATH}
 pops-srv-employee:
-  url: ${POPS_SRV_EMPLOYEE_URL:http://localhost:8081/api/employees}
+  url: ${POPS_SRV_EMPLOYEE_URL:http://localhost:8081/api-employee}
