@@ -1,11 +1,13 @@
 package squad_api.squad_api.application.controller
 
 import org.springframework.data.domain.Pageable
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import squad_api.squad_api.application.dto.TeamCreateRequest
 import squad_api.squad_api.application.dto.TeamResponseDTO
+import squad_api.squad_api.application.dto.TeamDetailDTO
 import squad_api.squad_api.domain.model.Team
 import squad_api.squad_api.domain.service.AllocationDeleteService
 import squad_api.squad_api.domain.service.AllocationHistoryService
@@ -40,6 +42,24 @@ class TeamController(
         ResponseEntity.ok(teamService.findTeamById(id, authHeader, allocations))
     } catch (ex: ResponseStatusException) {
         ResponseEntity.status(ex.statusCode).body(mapOf("error" to ex.reason))
+    }
+
+    @GetMapping("/{id}/details")
+    fun getDetails(
+        @PathVariable id: Long,
+        @RequestHeader("Authorization") authHeader: String,
+    ): ResponseEntity<Any> = try {
+        println("TeamController.getDetails: Buscando detalhes do team $id")
+        val details = teamService.getTeamDetails(id, authHeader)
+        println("TeamController.getDetails: Detalhes encontrados - ${details.membersCount} membros")
+        ResponseEntity.ok(details)
+    } catch (ex: ResponseStatusException) {
+        println("TeamController.getDetails: ResponseStatusException - ${ex.statusCode} - ${ex.reason}")
+        ResponseEntity.status(ex.statusCode).body(mapOf("error" to ex.reason))
+    } catch (ex: Exception) {
+        println("TeamController.getDetails: Exception - ${ex.message}")
+        ex.printStackTrace()
+        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mapOf("error" to (ex.message ?: "Erro desconhecido")))
     }
 
     @GetMapping("/project/{projectId}")

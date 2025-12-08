@@ -9,7 +9,14 @@ class AllocationNormalizer(
     private val popsSrvEmployeeClient: PopsSrvEmployeeClient
 ) {
     fun normalize(allocation: Allocation, token: String): AllocationResponse {
-        val employee = popsSrvEmployeeClient.findEmployeeById(allocation.personId, token)
+        val employeeFull = popsSrvEmployeeClient.findEmployeeById(allocation.personId, token)
+        // Criar EmployeeDTO simplificado apenas com id e name para manter compatibilidade
+        val employee = employeeFull?.let { 
+            squad_api.squad_api.application.dto.EmployeeDTO(
+                id = it.id,
+                name = it.name
+            )
+        }
         return AllocationResponse(
             id = allocation.id!!,
             startedAt = allocation.startedAt,
